@@ -2,10 +2,34 @@
 
 import { useWeatherStore } from "@/store/weatherStore";
 
+// Format za datetime-local input — minute uvijek :00
+function toInputFormat(value: string): string {
+  if (!value) return "";
+  const d = new Date(value);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:00`;
+}
+
+// Kad korisnik mijenja vrijednost, zaokruzi minute na :00
+function normalizeInput(value: string): string {
+  if (!value) return "";
+  return value.slice(0, 13) + ":00"; // "YYYY-MM-DDTHH:00"
+}
+
 export default function SearchFilters() {
-  const { filters, setFilters, forecast } = useWeatherStore();
+  const { filters, setFilters, forecast, minDate, maxDate } = useWeatherStore();
 
   if (!forecast) return null;
+
+  const handleChange = (field: "periodFrom" | "periodTo", value: string) => {
+    setFilters({ [field]: normalizeInput(value) });
+  };
+
+  const handleReset = () => {
+    setFilters({ periodFrom: minDate, periodTo: maxDate });
+  };
+
+  const isChanged = filters.periodFrom !== minDate || filters.periodTo !== maxDate;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -15,8 +39,11 @@ export default function SearchFilters() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Od datuma</label>
           <input
             type="datetime-local"
-            value={filters.periodFrom}
-            onChange={(e) => setFilters({ periodFrom: e.target.value })}
+            value={toInputFormat(filters.periodFrom)}
+            min={minDate}
+            max={filters.periodTo || maxDate}
+            step={3600} // korak od 1 sat — sprjecava odabir minuta
+            onChange={(e) => handleChange("periodFrom", e.target.value)}
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -24,18 +51,19 @@ export default function SearchFilters() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Do datuma</label>
           <input
             type="datetime-local"
-            value={filters.periodTo}
-            onChange={(e) => setFilters({ periodTo: e.target.value })}
+            value={toInputFormat(filters.periodTo)}
+            min={filters.periodFrom || minDate}
+            max={maxDate}
+            step={3600} // korak od 1 sat
+            onChange={(e) => handleChange("periodTo", e.target.value)}
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
-      {(filters.periodFrom || filters.periodTo) && (
-        <button
-          onClick={() => setFilters({ periodFrom: "", periodTo: "" })}
-          className="mt-3 text-sm text-gray-400 hover:text-gray-600 transition"
-        >
-          Resetiraj filtere
+
+      {isChanged && (
+        <button onClick={handleReset} className="mt-3 text-sm text-gray-400 hover:text-gray-600 transition">
+          Resetiraj na cijeli period
         </button>
       )}
     </div>
