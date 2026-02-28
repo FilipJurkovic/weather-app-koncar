@@ -14,7 +14,7 @@ public class DatabaseInitializer
     public async Task InitializeAsync()
     {
         // Pročitaj init.sql skriptu
-        var sql = await File.ReadAllTextAsync("Data/init.sql");
+        var sql = await File.ReadAllTextAsync("Repositories/init.sql");
 
         // Otvori konekciju i izvrši skriptu
         using var connection = _connectionFactory.Create();
