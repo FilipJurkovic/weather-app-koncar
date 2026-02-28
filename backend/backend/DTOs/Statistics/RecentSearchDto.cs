@@ -1,8 +1,9 @@
 namespace backend.DTOs.Statistics;
 
-public record RecentSearchDto(
-    string City,
-    string WeatherCondition,
-    double Temperature,
-    DateTime SearchedAt
-);
+public class RecentSearchDto
+{
+    public string City { get; set; } = string.Empty;
+    public string WeatherCondition { get; set; } = string.Empty;
+    public double Temperature { get; set; }
+    public DateTime SearchedAt { get; set; }
+}

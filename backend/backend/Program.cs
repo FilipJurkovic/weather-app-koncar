@@ -79,6 +79,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<DatabaseInitializer>();
 
+Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+
 // ---------- Repositories ----------
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<ISearchRepository, SearchRepository>();

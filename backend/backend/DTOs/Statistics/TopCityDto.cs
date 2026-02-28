@@ -1,3 +1,7 @@
 namespace backend.DTOs.Statistics;
 
-public record TopCityDto(string City, int Count);
+public class TopCityDto
+{
+    public string City { get; set; } = string.Empty;
+    public int Count { get; set; }
+}

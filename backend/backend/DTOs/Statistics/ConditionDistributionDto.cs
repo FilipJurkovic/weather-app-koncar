@@ -1,3 +1,7 @@
 namespace backend.DTOs.Statistics;
 
-public record ConditionDistributionDto(string Condition, int Count);
+public class ConditionDistributionDto
+{
+    public string Condition { get; set; } = string.Empty;
+    public int Count { get; set; }
+}
