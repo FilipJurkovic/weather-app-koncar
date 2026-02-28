@@ -11,6 +11,29 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend/backend
+      dockerfile: Dockerfile
+    container_name: weatherapp-backend
+    restart: unless-stopped
+    ports:
+      - "8080:5000"
+    environment:
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=weatherapp;Username=postgres;Password=postgres"
+      Jwt__Secret: "8Zolpd5hGHBydsKDlCFP9Ylmyrr6q9ANUEVWWJqSlhA"
+      Jwt__Issuer: "WeatherApp"
+      Jwt__Audience: "WeatherAppUsers"
+      OpenWeather__ApiKey: ""
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:
