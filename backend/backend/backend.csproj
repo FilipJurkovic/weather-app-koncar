@@ -20,7 +20,6 @@
     <ItemGroup>
       <Folder Include="Repositories\Search\" />
       <Folder Include="Services\Search\" />
-      <Folder Include="Services\Weather\" />
     </ItemGroup>
 
 </Project>
