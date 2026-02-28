@@ -47,8 +47,6 @@ export const useWeatherStore = create<WeatherState>((set, get) => ({
     });
   },
 
-  // Kad se filteri promijene, automatski ažuriraj filteredItems
-  // Grid i graf čitaju filteredItems - oba se automatski ažuriraju
   setFilters: (newFilters) => {
     const filters = { ...get().filters, ...newFilters };
     const forecast = get().forecast;
