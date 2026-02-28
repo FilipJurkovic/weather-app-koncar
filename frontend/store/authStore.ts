@@ -9,7 +9,7 @@ interface AuthState {
 
   setAuth: (data: AuthResponse) => void;
   logout: () => void;
-  initAuth: () => void; // čita token iz localStoragea pri učitavanju stranice
+  initAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -19,7 +19,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
 
   setAuth: (data) => {
+    // Spremi u localStorage za API pozive
     localStorage.setItem("token", data.token);
+    // Spremi u cookie za middleware (zaštita ruta)
+    document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
     set({
       token: data.token,
       username: data.username,
@@ -30,6 +33,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     localStorage.removeItem("token");
+    // Obriši cookie
+    document.cookie = "token=; path=/; max-age=0";
     set({
       token: null,
       username: null,
@@ -38,11 +43,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     });
   },
 
-  // Poziva se pri učitavanju app-a da hydratizira state iz localStoragea
   initAuth: () => {
     const token = localStorage.getItem("token");
     if (token) {
-      // Dekodiraj JWT payload da dobiješ username i email
       const payload = JSON.parse(atob(token.split(".")[1]));
       set({
         token,
