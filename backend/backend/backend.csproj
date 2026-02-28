@@ -17,9 +17,4 @@
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Repositories\Search\" />
-      <Folder Include="Services\Search\" />
-    </ItemGroup>
-
 </Project>

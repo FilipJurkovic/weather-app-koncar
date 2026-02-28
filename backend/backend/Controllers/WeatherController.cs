@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using backend.DTOs.Weather;
 using backend.Services.Weather;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/weather")]
 [Authorize]
 public class WeatherController : ControllerBase
 {
@@ -16,8 +18,11 @@ public class WeatherController : ControllerBase
         _weatherService = weatherService;
     }
 
+    private int GetUserId() =>
+        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
     [HttpGet("current")]
-    public async Task<IActionResult> GetCurrent([FromQuery] double lat, [FromQuery] double lon)
+    public async Task<ActionResult<CurrentWeatherDto>> GetCurrent([FromQuery] double lat, [FromQuery] double lon)
     {
         var data = await _weatherService.GetCurrentWeatherAsync(lat, lon);
 
@@ -28,12 +33,12 @@ public class WeatherController : ControllerBase
     }
 
     [HttpGet("forecast")]
-    public async Task<IActionResult> GetForecast([FromQuery] string city)
+    public async Task<ActionResult<ForecastResponseDto>> GetForecast([FromQuery] string city)
     {
         if (string.IsNullOrWhiteSpace(city))
             return BadRequest(new { message = "Naziv grada je obavezan." });
 
-        var data = await _weatherService.GetForecastAsync(city);
+        var data = await _weatherService.GetForecastAsync(city, GetUserId());
 
         if (data == null)
             return BadRequest(new { message = $"Nije moguće dohvatiti prognozu za: {city}" });

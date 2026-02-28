@@ -1,17 +1,21 @@
 using System.Text.Json;
+using backend.DTOs.Search;
 using backend.DTOs.Weather;
+using backend.Repositories.Search;
 
 namespace backend.Services.Weather;
 
 public class WeatherService : IWeatherService
 {
     private readonly HttpClient _http;
+    private readonly ISearchRepository _searchRepository;
     private readonly string _apiKey;
     private const string BaseUrl = "https://api.openweathermap.org/data/2.5";
 
-    public WeatherService(HttpClient http, IConfiguration config)
+    public WeatherService(HttpClient http, ISearchRepository searchRepository, IConfiguration config)
     {
         _http = http;
+        _searchRepository = searchRepository;
         _apiKey = config["OpenWeather:ApiKey"]!;
     }
 
@@ -32,7 +36,7 @@ public class WeatherService : IWeatherService
         );
     }
 
-    public async Task<ForecastResponseDto?> GetForecastAsync(string city)
+    public async Task<ForecastResponseDto?> GetForecastAsync(string city, int userId)
     {
         var url = $"{BaseUrl}/forecast?q={Uri.EscapeDataString(city)}&appid={_apiKey}&units=metric";
         var json = await FetchAsync(url);
@@ -51,7 +55,18 @@ public class WeatherService : IWeatherService
             )
         ).ToList();
 
-        return new ForecastResponseDto(cityName, items);
+        var forecast = new ForecastResponseDto(cityName, items);
+
+        // Automatski spremi pretragu u bazu
+        await _searchRepository.SaveAsync(userId, new SaveSearchDto(
+            City: cityName,
+            WeatherCondition: items.First().Condition,
+            Temperature: items.First().Temp,
+            PeriodFrom: items.First().DateTime,
+            PeriodTo: items.Last().DateTime
+        ));
+
+        return forecast;
     }
 
     private async Task<JsonElement?> FetchAsync(string url)

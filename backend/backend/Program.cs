@@ -1,6 +1,9 @@
 using System.Text;
 using backend.Repositories;
+using backend.Repositories.Search;
 using backend.Services.Auth;
+using backend.Services.Search;
+using backend.Services.Weather;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -78,9 +81,13 @@ builder.Services.AddScoped<DatabaseInitializer>();
 
 // ---------- Repositories ----------
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<ISearchRepository, SearchRepository>();
 
 // ---------- Services ----------
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddHttpClient<WeatherService>();              
+builder.Services.AddScoped<IWeatherService, WeatherService>();
 
 // ---------- Build ----------
 var app = builder.Build();
